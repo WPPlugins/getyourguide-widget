@@ -2,13 +2,13 @@
 /**
  * @package   GetYourGuide_Widget
  * @author    GetYourGuide
- * @link      http://www.getyourguide.com
+ * @link      https://www.getyourguide.com
  *
  * @wordpress-plugin
  * Plugin Name:       GetYourGuide Widget
- * Plugin URI:        http://www.getyourguide.com
+ * Plugin URI:        https://github.com/getyourguide/wordpress-plugin
  * Description:       Displays GetYourGuide tours and activities.
- * Version:           1.1.0
+ * Version:           1.3.11
  * Author:            GetYourGuide
  * Author URI:        http://partner.getyourguide.com
  * Text Domain:       getyourguide-widget
@@ -41,10 +41,9 @@ if ( version_compare( PHP_VERSION, REQUIRED_PHP_VERSION, '<' ) ) {
 	exit( 'Hi there! The GetYourGuide Widget requires at least PHP version ' . REQUIRED_PHP_VERSION . ' to run. Please contact your web hosting service.' );
 }
 
-require_once( dirname( __FILE__ ) . '/includes/widget-settings.class.php' );
-require_once( dirname( __FILE__ ) . '/includes/widget-options.class.php' );
-require_once( dirname( __FILE__ ) . '/includes/widget-post-options.class.php' );
-require_once( dirname( __FILE__ ) . '/includes/widget.class.php' );
+require_once __DIR__ . '/includes/widget-settings.class.php';
+require_once __DIR__ . '/includes/widget-options.class.php';
+require_once __DIR__ . '/includes/widget.class.php';
 
 /**
  * Identify plugin as a relative path.
@@ -58,8 +57,16 @@ function getyourguide_widget_plugin_self() {
 }
 
 // Register the widget
-add_action( 'widgets_init', create_function( '', 'register_widget("GetYourGuide_Widget");' ) );
+if(function_exists('create_function')){
+	add_action( 'widgets_init', create_function( '', 'register_widget("GetYourGuide_Widget");' ) );
+}else{
+	add_action( 'widgets_init', function(){register_widget("GetYourGuide_Widget");} );
+}
 
 // Create the other objects to register their hooks.
 new GetYourGuide_Widget_Settings();
-new GetYourGuide_Widget_Post_Options();
+
+/**
+ * Block Initializer.
+ */
+require_once plugin_dir_path( __FILE__ ) . 'src/init.php';

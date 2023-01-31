@@ -5,23 +5,24 @@ class GetYourGuide_Widget_Settings {
 
 	const SECTION_WIDGET = 'getyourguide_section_widget';
 	const OPTION_NAME_PARTNER_ID = 'getyourguide_partner_id';
-	const OPTION_NAME_CURRENCY = "getyourguide_currency";
-	const OPTION_NAME_LOCALE = "getyourguide_locale";
+	const OPTION_NAME_CURRENCY = 'getyourguide_currency';
+	const OPTION_NAME_LOCALE = 'getyourguide_locale';
 
 	const LOCALE_DEFAULT = 'en-US';
 	const CURRENCY_DEFAULT = 'automatic';
 	const NUMBER_OF_ITEMS_DEFAULT = 10;
 	const CAMPAIGN_PARAM_DEFAULT = '';
 
-	function __construct() {
+	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
 		add_action( 'admin_init', [ $this, 'settings_init' ] );
+		add_action( 'admin_footer', [ $this, 'expose_settings' ] );
 	}
 
 	public function admin_menu() {
 		add_options_page(
 			__( 'GetYourGuide', 'getyourguide-widget' ),
-			__( 'GetYourGuide Widget', 'getyourguide-widget' ),
+			__( 'GetYourGuide', 'getyourguide-widget' ),
 			'manage_options',
 			self::SETTINGS_PAGE_IDENTIFIER,
 			[ $this, 'display_settings_page' ]
@@ -77,26 +78,26 @@ class GetYourGuide_Widget_Settings {
 			return;
 		}
 
-		include dirname( __FILE__ ) . '/../views/settings.php';
+		include __DIR__ . '/../views/settings.php';
 	}
 
 	public function display_partner_id_field() {
-		$description = __( "Become a GetYourGuide partner!", 'getyourguide-widget' );
-		$url         = "https://partner.getyourguide.com/";
+		$description = __( 'Become a GetYourGuide partner!', 'getyourguide-widget' );
+		$url         = 'https://partner.getyourguide.com/en-us/signup?cmp=wp-widget';
 		$partnerId   = get_option( self::OPTION_NAME_PARTNER_ID, '' );
-		include dirname( __FILE__ ) . '/../includes/fields/partner_id_field.php';
+		include __DIR__ . '/../includes/fields/partner_id_field.php';
 	}
 
 	public function display_currency_field() {
 		$currency = get_option( self::OPTION_NAME_CURRENCY, self::CURRENCY_DEFAULT );
 		$values   = $this->getCurrencies();
-		include dirname( __FILE__ ) . '/../includes/fields/currency_field.php';
+		include __DIR__ . '/../includes/fields/currency_field.php';
 	}
 
 	public function display_locale_field() {
 		$locale = get_option( self::OPTION_NAME_LOCALE, self::LOCALE_DEFAULT );
 		$values = $this->getLocaleCodes();
-		include dirname( __FILE__ ) . '/../includes/fields/locale_field.php';
+		include __DIR__ . '/../includes/fields/locale_field.php';
 	}
 
 	/**
@@ -109,22 +110,31 @@ class GetYourGuide_Widget_Settings {
 	public function validate_currency( $currency ) {
 		if ( array_key_exists( $currency, $this->getCurrencies() ) ) {
 			return $currency;
-		} else {
-			return self::CURRENCY_DEFAULT;
 		}
+
+		return self::CURRENCY_DEFAULT;
 	}
 
 	public function validate_locale( $locale ) {
 		if ( array_key_exists( $locale, $this->getLocaleCodes() ) ) {
 			return $locale;
-		} else {
-			return self::LOCALE_DEFAULT;
 		}
+
+		return self::LOCALE_DEFAULT;
 	}
 
 	public function validate_partner_id( $partnerId ) {
 		// Partner ID has definitely no spaces
 		return str_replace( ' ', '', $partnerId );
+	}
+
+	public function expose_settings() {
+		$gyg_data = [
+			'currency' => esc_html( get_option( self::OPTION_NAME_CURRENCY, self::CURRENCY_DEFAULT ) ),
+			'locale_code' => esc_html( get_option( self::OPTION_NAME_LOCALE, self::LOCALE_DEFAULT ) ),
+			'partnerID' => esc_html( get_option( self::OPTION_NAME_PARTNER_ID, '' ) )
+		];
+		echo "<script>gygData = " . json_encode( $gyg_data ) . "</script>";
 	}
 
 	protected function getCurrencies() {
