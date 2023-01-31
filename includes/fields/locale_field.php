@@ -1,6 +1,6 @@
-<select name="<?php echo self::OPTION_NAME_LOCALE; ?>" >
+<select name="<?php echo esc_attr( self::OPTION_NAME_LOCALE ); ?>" >
 	<?php foreach ($values as $localeCode => $localeName): ?>
-		<option value="<?php echo $localeCode ?>" <?php echo (($localeCode == $locale) ? selected(true) : ''); ?>>
+		<option value="<?php echo esc_attr( $localeCode ) ?>" <?php echo esc_attr( (($localeCode === $locale) ? selected(true) : '') ); ?>>
 			<?php echo esc_html($localeName) ?>
 		</option>
 	<?php endforeach; ?>
